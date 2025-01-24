@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Microsoft Word Type Editor</title>
+    <!-- Include CKEditor script -->
+    <script src="https://cdn.ckeditor.com/4.16.2/standard/ckeditor.js"></script>
+    <style>
+        /* CSS to style the editor */
+        .cke_editable {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 15pt;
+            text-align: justify;
+            border-radius: 10px; /* Rounded corners */
+            padding: 10px;
+            background-color: #f9f9f9; /* Light background color */
+        }
+        /* Center the CKEditor toolbar */
+        .cke_top {
+            display: flex;
+            justify-content: center;
+            border-radius: 10px; /* Rounded corners */
+            background-color: #e0e0e0; /* Softer toolbar color */
+        }
+        /* Style for the buttons */
+        #startBtn {
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+            border-radius: 5px; /* Rounded corners */
+            transition: background-color 0.3s ease; /* Smooth color transition */
+        }
+        #startBtn:hover {
+            background-color: #0056b3;
+        }
+        /* General body styling */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0; /* Softer background color */
+            color: #333;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            color: #333;
+        }
+        /* Container for the editor and buttons */
+        .editor-container {
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        /* Responsive textarea */
+        textarea {
+            width: 100%;
+            max-width: 800px;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+    <h1>Microsoft Word Type Editor</h1>
+    <div class="editor-container">
+        <!-- Create a textarea for CKEditor -->
+        <textarea name="editor1" id="editor1" rows="10" cols="80">
+            This is an editable area. You can change this text.
+        </textarea>
+        <!-- Button to start speech recognition -->
+        <button id="startBtn">Start Dictation</button>
+    </div>
+    <!-- Initialize CKEditor with Spell Check -->
+    <script>
+        CKEDITOR.replace('editor1', {
+            extraPlugins: 'scayt', // Enable Spell Check As You Type
+            scayt_autoStartup: true // Automatically start spell check
+        });
+
+        // Speech Recognition setup
+        const startBtn = document.getElementById('startBtn');
+        const editor = CKEDITOR.instances.editor1;
+        const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        recognition.continuous = true;
+        recognition.interimResults = true;
+
+        let finalTranscript = '';
+
+        recognition.onresult = (event) => {
+            let interimTranscript = '';
+            for (let i = event.resultIndex; i < event.results.length; ++i) {
+                if (event.results[i].isFinal) {
+                    finalTranscript += event.results[i][0].transcript;
+                } else {
+                    interimTranscript += event.results[i][0].transcript;
+                }
+            }
+            editor.setData(finalTranscript + interimTranscript);
+        };
+
+        startBtn.addEventListener('click', () => {
+            recognition.start();
+        });
+    </script>
+</body>
+</html>
